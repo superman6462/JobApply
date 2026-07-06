@@ -3,7 +3,7 @@
  * Module: Teletalk Field Mapping
  * Purpose: Exact name/id-keyed field map for bsdb.teletalk.com.bd-style forms.
  * Author: Lead Engineer
- * Version: 1.2.0
+ * Version: 1.3.0
  * Last Updated: 2026-07-06
  */
 
@@ -60,6 +60,20 @@ const TELETALK_EXACT_FIELD_MAP = {
   hsc_result_type: 'hscResultType',
   hsc_result: 'hscResult',
   hsc_year: 'hscYear',
+  gra_exam: 'graExam',
+  gra_institute: 'graInstitute',
+  gra_subject: 'graSubject',
+  gra_result_type: 'graResultType',
+  gra_result: 'graResult',
+  gra_year: 'graYear',
+  gra_duration: 'graDuration',
+  mas_exam: 'masExam',
+  mas_institute: 'masInstitute',
+  mas_subject: 'masSubject',
+  mas_result_type: 'masResultType',
+  mas_result: 'masResult',
+  mas_year: 'masYear',
+  mas_duration: 'masDuration',
   // Other Qualifications – these are arrays with indices
   'other_exp[0][value]': 'experienceComputer',
   'other_exp[1][value]': 'experienceSatlipi'
