@@ -49,6 +49,16 @@ Last Updated: 2026-07-06
           <p id="import-status" class="form-status" role="status" aria-live="polite"></p>
 
           <button type="button" id="export-json-btn" class="button button--secondary import-panel__export" hidden>Download Selected as JSON</button>
+
+          <!-- NEW: Sample Profile section -->
+          <hr style="border-top: 1px solid var(--color-border); margin: var(--spacing-md) 0;" />
+          <p class="import-panel__title">Sample Profile</p>
+          <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+            <button type="button" id="load-sample-btn" class="button button--secondary">Load Sample Profile</button>
+            <button type="button" id="show-sample-json-btn" class="button button--secondary">Show Sample JSON</button>
+          </div>
+          <pre id="sample-json-display" style="display:none; background: #f8fafc; padding: var(--spacing-md); border-radius: var(--radius); font-size: 12px; max-height: 300px; overflow: auto; margin-top: var(--spacing-sm);"></pre>
+          <p id="sample-status" class="form-status" role="status" aria-live="polite"></p>
         </div>
       </aside>
 
