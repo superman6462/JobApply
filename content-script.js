@@ -6,7 +6,7 @@
  *          teletalk-mapping.js for exact name/id matches on Teletalk-style
  *          hostnames before falling back to generic label-text matching.
  * Author: Lead Engineer
- * Version: 1.2.0
+ * Version: 1.3.0
  * Dependencies: teletalk-mapping.js
  * Last Updated: 2026-07-06
  */
@@ -18,8 +18,11 @@
  */
 const FIELD_PATTERNS = {
   fullName: ['full name', 'fullname', 'name', 'applicant name', 'candidate name'],
+  nameBn: ['name_bn', 'বাংলায়', 'bangla'],
   fatherName: ["father's name", 'father name', 'fathername'],
+  fatherBn: ['father_bn', 'পিতার নাম'],
   motherName: ["mother's name", 'mother name', 'mothername'],
+  motherBn: ['mother_bn', 'মাতার নাম'],
   dateOfBirth: ['date of birth', 'dob', 'birth date', 'birthdate'],
   gender: ['gender', 'sex'],
   nid: ['nid', 'national id', 'national identity'],
@@ -181,6 +184,73 @@ function resolveFieldKey(element) {
 }
 
 /**
+ * Special handling for specific form fields that need extra logic.
+ * @param {HTMLElement} element
+ * @param {object} profileData
+ * @returns {boolean} whether the field was handled and filled
+ */
+function handleSpecialFields(element, profileData) {
+  const name = element.getAttribute('name');
+  const id = element.getAttribute('id');
+
+  // Handle "Yes/No" selects for NID, Birth Registration, Passport
+  if (name === 'nid' || id === 'nid') {
+    const hasNid = profileData.nidNo && profileData.nidNo.trim() !== '';
+    const valueToSet = hasNid ? '1' : '0';
+    // Check if "Yes" option value is "1" or "Yes"
+    const yesOption = Array.from(element.options).find(opt => opt.value === '1' || normalize(opt.textContent) === 'yes');
+    if (yesOption) {
+      element.value = yesOption.value;
+      element.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    }
+  }
+  if (name === 'breg' || id === 'breg') {
+    const hasBreg = profileData.birthRegNo && profileData.birthRegNo.trim() !== '';
+    const valueToSet = hasBreg ? '1' : '0';
+    const yesOption = Array.from(element.options).find(opt => opt.value === '1' || normalize(opt.textContent) === 'yes');
+    if (yesOption) {
+      element.value = yesOption.value;
+      element.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    }
+  }
+  if (name === 'passport' || id === 'passport') {
+    const hasPassport = profileData.passportNo && profileData.passportNo.trim() !== '';
+    const valueToSet = hasPassport ? '1' : '0';
+    const yesOption = Array.from(element.options).find(opt => opt.value === '1' || normalize(opt.textContent) === 'yes');
+    if (yesOption) {
+      element.value = yesOption.value;
+      element.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    }
+  }
+
+  // Handle "If Applicable" checkboxes
+  if (name === 'if_applicable_gra' || id === 'if_applicable_gra') {
+    if (profileData.bachelor && profileData.bachelor.trim() !== '') {
+      element.checked = true;
+      element.dispatchEvent(new Event('change', { bubbles: true }));
+      // Also trigger change to enable the fields
+      return true;
+    }
+  }
+  if (name === 'if_applicable_mas' || id === 'if_applicable_mas') {
+    if (profileData.master && profileData.master.trim() !== '') {
+      element.checked = true;
+      element.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    }
+  }
+  if (name === 'if_applicable_exp' || id === 'if_applicable_exp') {
+    // We don't have job experience in profile, so leave unchecked
+    return false;
+  }
+
+  return false;
+}
+
+/**
  * Fills all matchable form fields on the page using the given profile.
  * @param {Record<string, string>} profileData
  * @returns {number} count of fields successfully filled
@@ -195,6 +265,12 @@ function fillForm(profileData) {
     const type = (element.getAttribute('type') || '').toLowerCase();
 
     if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'file' || element.disabled) {
+      continue;
+    }
+
+    // Special handling for specific fields
+    if (handleSpecialFields(element, profileData)) {
+      filledCount++;
       continue;
     }
 
@@ -213,6 +289,7 @@ function fillForm(profileData) {
     }
 
     if (type === 'checkbox') {
+      // Skip checkboxes unless handled above
       continue;
     }
 
