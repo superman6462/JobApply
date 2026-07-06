@@ -79,9 +79,18 @@ const formStatusEl = document.getElementById('form-status');
 const newProfileBtn = document.getElementById('new-profile-btn');
 const deleteProfileBtn = document.getElementById('delete-profile-btn');
 const profileIdInput = document.getElementById('profile-id');
+const copyFromProfileSelect = document.getElementById('copy-from-profile-select');
+const copyFromProfileBtn = document.getElementById('copy-from-profile-btn');
+const importJsonInput = document.getElementById('import-json-input');
+const importJsonBtn = document.getElementById('import-json-btn');
+const importStatusEl = document.getElementById('import-status');
+const exportJsonBtn = document.getElementById('export-json-btn');
+
+const ALL_PROFILE_FIELD_KEYS = [...TEXT_FIELD_KEYS, ...CHECKBOX_FIELD_KEYS];
 
 let profiles = [];
 let selectedProfileId = null;
+let pendingImportFile = null;
 
 /**
  * Sends a message to the background service worker.
@@ -127,6 +136,19 @@ function setFormStatus(message, tone) {
 }
 
 /**
+ * Sets the import panel status line text and style.
+ * @param {string} message
+ * @param {'success'|'error'|''} tone
+ */
+function setImportStatus(message, tone) {
+  importStatusEl.textContent = message;
+  importStatusEl.className = 'form-status';
+  if (tone) {
+    importStatusEl.classList.add(`form-status--${tone}`);
+  }
+}
+
+/**
  * Renders the profile list sidebar based on current profiles array.
  */
 function renderProfileList() {
@@ -134,27 +156,49 @@ function renderProfileList() {
 
   if (profiles.length === 0) {
     profileListEmptyEl.hidden = false;
-    return;
+  } else {
+    profileListEmptyEl.hidden = true;
+
+    for (const profile of profiles) {
+      const li = document.createElement('li');
+      li.className = 'profile-list__item';
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'profile-list__button';
+      if (profile.id === selectedProfileId) {
+        button.classList.add('profile-list__button--active');
+      }
+      button.textContent = profile.name || 'Unnamed profile';
+      button.addEventListener('click', () => selectProfile(profile.id));
+
+      li.appendChild(button);
+      profileListEl.appendChild(li);
+    }
   }
 
-  profileListEmptyEl.hidden = true;
+  renderCopyFromProfileOptions();
+}
+
+/**
+ * Populates the "copy from a saved profile" dropdown from the current
+ * profiles array, preserving the previously selected value if still valid.
+ */
+function renderCopyFromProfileOptions() {
+  const previousValue = copyFromProfileSelect.value;
+  copyFromProfileSelect.innerHTML = '<option value="">Select a profile…</option>';
 
   for (const profile of profiles) {
-    const li = document.createElement('li');
-    li.className = 'profile-list__item';
-
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'profile-list__button';
-    if (profile.id === selectedProfileId) {
-      button.classList.add('profile-list__button--active');
-    }
-    button.textContent = profile.name || 'Unnamed profile';
-    button.addEventListener('click', () => selectProfile(profile.id));
-
-    li.appendChild(button);
-    profileListEl.appendChild(li);
+    const option = document.createElement('option');
+    option.value = profile.id;
+    option.textContent = profile.name || 'Unnamed profile';
+    copyFromProfileSelect.appendChild(option);
   }
+
+  if (profiles.some((p) => p.id === previousValue)) {
+    copyFromProfileSelect.value = previousValue;
+  }
+  copyFromProfileBtn.disabled = profiles.length === 0;
 }
 
 /**
