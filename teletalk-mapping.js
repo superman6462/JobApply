@@ -6,7 +6,7 @@
  *          matching in content-script.js. Unmapped fields fall through to
  *          the generic matcher so new/unseen fields are still attempted.
  * Author: Lead Engineer
- * Version: 1.0.0
+ * Version: 1.1.0
  * Dependencies: none (consumed by content-script.js)
  * Last Updated: 2026-07-06
  */
@@ -43,6 +43,7 @@ const TELETALK_EXACT_FIELD_MAP = {
   quota: 'quota',
   quota_details: 'quotaDetails',
   dep_status: 'depStatus',
+  ds: 'depStatus',
   present_careof: 'presentCareOf',
   present_village: 'presentAddress',
   present_district: 'presentDistrict',
@@ -73,7 +74,9 @@ const TELETALK_EXACT_FIELD_MAP = {
   hsc_board_other: 'hscBoardOther',
   hsc_result_type: 'hscResultType',
   hsc_result: 'hscResult',
-  hsc_year: 'hscYear'
+  hsc_year: 'hscYear',
+  experience_computer: 'experienceComputer',
+  experience_satlipi: 'experienceSatlipi'
 };
 
 /**
