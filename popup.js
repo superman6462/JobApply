@@ -4,7 +4,7 @@
  * Purpose: Populates profile selector, wires autofill trigger, and routes
  *          navigation to profile/application management views.
  * Author: Lead Engineer
- * Version: 1.0.0
+ * Version: 1.1.0
  * Dependencies: background.js (message API), content-script.js (AUTOFILL_PAGE)
  * Last Updated: 2026-07-06
  */
@@ -109,6 +109,24 @@ function getActiveTab() {
 }
 
 /**
+ * Ensures the content script is injected into the active tab.
+ * @param {number} tabId
+ * @returns {Promise<void>}
+ */
+async function ensureContentScript(tabId) {
+  try {
+    // Try to send a ping to check if content script is already there
+    await chrome.tabs.sendMessage(tabId, { type: 'PING' });
+  } catch (e) {
+    // If it fails, inject the content script programmatically
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ['teletalk-mapping.js', 'content-script.js']
+    });
+  }
+}
+
+/**
  * Handles profile selection change: persists as active profile.
  * @returns {Promise<void>}
  */
@@ -137,6 +155,9 @@ async function handleAutofillClick() {
     }
 
     const tab = await getActiveTab();
+    // Ensure content script is loaded
+    await ensureContentScript(tab.id);
+
     const response = await chrome.tabs.sendMessage(tab.id, {
       type: 'AUTOFILL_PAGE',
       payload: activeProfile
@@ -149,7 +170,8 @@ async function handleAutofillClick() {
 
     setStatus(`Filled ${response.data.filledCount} field(s).`, 'success');
   } catch (error) {
-    setStatus(error.message, 'error');
+    // Handle "Receiving end does not exist" and other errors
+    setStatus(error.message || 'Could not connect to page. Reload the page and try again.', 'error');
   } finally {
     autofillBtn.disabled = false;
   }
