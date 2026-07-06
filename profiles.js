@@ -4,7 +4,7 @@
  * Purpose: Loads, renders, creates, updates, and deletes profiles via the
  *          background message API, binding all profiles.html interactions.
  * Author: Lead Engineer
- * Version: 1.3.0
+ * Version: 1.4.0
  * Dependencies: background.js (message API)
  * Last Updated: 2026-07-06
  */
@@ -65,8 +65,22 @@ const TEXT_FIELD_KEYS = [
   'hscResultType',
   'hscResult',
   'hscYear',
-  'bachelor',
-  'master',
+  'graExam',
+  'graInstitute',
+  'graSubject',
+  'graResultType',
+  'graResult',
+  'graYear',
+  'graDuration',
+  'masExam',
+  'masInstitute',
+  'masSubject',
+  'masResultType',
+  'masResult',
+  'masYear',
+  'masDuration',
+  'bachelor',    // summary field for "If Applicable" checkbox
+  'master',      // summary field for "If Applicable" checkbox
   'experienceComputer',
   'experienceSatlipi'
 ];
@@ -432,6 +446,20 @@ function getSampleProfileData() {
     hscResultType: 'GPA(out of 5)',
     hscResult: '4.50',
     hscYear: '2012',
+    graExam: 'Honors',
+    graInstitute: 'National University',
+    graSubject: 'Zoology',
+    graResultType: 'CGPA(out of 4)',
+    graResult: '3.43',
+    graYear: '2016',
+    graDuration: '04',
+    masExam: 'Masters',
+    masInstitute: 'National University',
+    masSubject: 'Zoology',
+    masResultType: 'CGPA(out of 4)',
+    masResult: '3.61',
+    masYear: '2017',
+    masDuration: '01',
     bachelor: 'B.Sc (Honors) in Zoology, National University, 2016, CGPA 3.43',
     master: 'M.Sc in Zoology, National University, 2017, CGPA 3.61',
     experienceComputer: 'Yes',
