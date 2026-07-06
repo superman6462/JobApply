@@ -4,7 +4,7 @@
  * Purpose: Loads, renders, creates, updates, and deletes profiles via the
  *          background message API, binding all profiles.html interactions.
  * Author: Lead Engineer
- * Version: 1.1.0
+ * Version: 1.2.0
  * Dependencies: background.js (message API)
  * Last Updated: 2026-07-06
  */
@@ -66,7 +66,9 @@ const TEXT_FIELD_KEYS = [
   'hscResult',
   'hscYear',
   'bachelor',
-  'master'
+  'master',
+  'experienceComputer',
+  'experienceSatlipi'
 ];
 
 const CHECKBOX_FIELD_KEYS = ['sameAsPresent'];
@@ -367,7 +369,7 @@ function handleSameAsPresentChange() {
 
 /**
  * Returns a sample profile object based on the data from the provided
- * "Save Document - Study Online Bd.html" file.
+ * "Save Document - Study Online Bd.html" file, now including all fields.
  * @returns {object}
  */
 function getSampleProfileData() {
@@ -430,7 +432,9 @@ function getSampleProfileData() {
     hscResult: '4.50',
     hscYear: '2012',
     bachelor: 'B.Sc (Honors) in Zoology, National University, 2016, CGPA 3.43',
-    master: 'M.Sc in Zoology, National University, 2017, CGPA 3.61'
+    master: 'M.Sc in Zoology, National University, 2017, CGPA 3.61',
+    experienceComputer: 'Yes',
+    experienceSatlipi: 'Yes'
   };
 }
 
@@ -470,7 +474,6 @@ if (loadSampleBtn) {
     setFormStatus('Sample profile loaded. You can edit and save.', 'success');
     populateForm(sample);
     renderProfileList();
-    // Ensure sameAsPresent checkbox is handled correctly
     const sameCheckbox = document.getElementById('field-sameAsPresent');
     if (sameCheckbox) {
       sameCheckbox.checked = true;
