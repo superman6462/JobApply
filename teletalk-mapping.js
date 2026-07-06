@@ -42,7 +42,6 @@ const TELETALK_EXACT_FIELD_MAP = {
   permanent_upazila: 'permanentUpazila',
   permanent_post: 'permanentPost',
   permanent_postcode: 'permanentPostcode',
-  // SSC / HSC
   ssc_exam: 'sscExam',
   ssc_roll: 'sscRoll',
   ssc_group: 'sscGroup',
@@ -61,7 +60,7 @@ const TELETALK_EXACT_FIELD_MAP = {
   hsc_result_type: 'hscResultType',
   hsc_result: 'hscResult',
   hsc_year: 'hscYear',
-  // Other Qualifications
+  // Other Qualifications – these are arrays with indices
   'other_exp[0][value]': 'experienceComputer',
   'other_exp[1][value]': 'experienceSatlipi'
 };
@@ -80,5 +79,4 @@ function resolveTeletalkFieldKey(nameAttr, idAttr) {
     return TELETALK_EXACT_FIELD_MAP[idAttr];
   }
   return null;
-}  return null;
 }
