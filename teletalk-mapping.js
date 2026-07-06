@@ -2,22 +2,11 @@
  * Project: BD Job Autofill
  * Module: Teletalk Field Mapping
  * Purpose: Exact name/id-keyed field map for bsdb.teletalk.com.bd-style forms.
- *          Provides high-precision matching ahead of generic label-text
- *          matching in content-script.js. Unmapped fields fall through to
- *          the generic matcher so new/unseen fields are still attempted.
  * Author: Lead Engineer
  * Version: 1.2.0
- * Dependencies: none (consumed by content-script.js)
  * Last Updated: 2026-07-06
  */
 
-/**
- * Maps a form element's exact `name` or `id` attribute to a profile field key.
- * Checked before generic label-text matching. Key precision here is what
- * makes Teletalk forms reliable, since label text on these forms is
- * inconsistent or bilingual.
- * @type {Record<string, string>}
- */
 const TELETALK_EXACT_FIELD_MAP = {
   name: 'fullName',
   name_bn: 'nameBn',
@@ -53,6 +42,7 @@ const TELETALK_EXACT_FIELD_MAP = {
   permanent_upazila: 'permanentUpazila',
   permanent_post: 'permanentPost',
   permanent_postcode: 'permanentPostcode',
+  // SSC / HSC
   ssc_exam: 'sscExam',
   ssc_roll: 'sscRoll',
   ssc_group: 'sscGroup',
@@ -71,37 +61,17 @@ const TELETALK_EXACT_FIELD_MAP = {
   hsc_result_type: 'hscResultType',
   hsc_result: 'hscResult',
   hsc_year: 'hscYear',
-  // Graduation fields – map to bachelor summary (we don't have granular fields)
-  // We'll skip them to avoid overwriting; they will be handled manually.
   // Other Qualifications
   'other_exp[0][value]': 'experienceComputer',
   'other_exp[1][value]': 'experienceSatlipi'
 };
 
-/**
- * Hostnames this mapping applies to. content-script.js should only consult
- * TELETALK_EXACT_FIELD_MAP when the active page hostname matches one of these.
- * @type {string[]}
- */
 const TELETALK_HOSTNAMES = ['teletalk.com.bd'];
 
-/**
- * Checks whether a given hostname belongs to a Teletalk-style domain.
- * @param {string} hostname
- * @returns {boolean}
- */
 function isTeletalkHostname(hostname) {
   return TELETALK_HOSTNAMES.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
 }
 
-/**
- * Resolves a profile field key from an element's exact name/id attributes.
- * Returns null if no exact match exists, signaling the caller to fall back
- * to generic label-text matching.
- * @param {string} nameAttr
- * @param {string} idAttr
- * @returns {string|null}
- */
 function resolveTeletalkFieldKey(nameAttr, idAttr) {
   if (nameAttr && TELETALK_EXACT_FIELD_MAP[nameAttr]) {
     return TELETALK_EXACT_FIELD_MAP[nameAttr];
@@ -110,4 +80,5 @@ function resolveTeletalkFieldKey(nameAttr, idAttr) {
     return TELETALK_EXACT_FIELD_MAP[idAttr];
   }
   return null;
+}  return null;
 }
