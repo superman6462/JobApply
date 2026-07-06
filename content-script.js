@@ -6,7 +6,7 @@
  *          teletalk-mapping.js for exact name/id matches on Teletalk-style
  *          hostnames before falling back to generic label-text matching.
  * Author: Lead Engineer
- * Version: 1.1.0
+ * Version: 1.2.0
  * Dependencies: teletalk-mapping.js
  * Last Updated: 2026-07-06
  */
@@ -36,11 +36,14 @@ const FIELD_PATTERNS = {
   maritalStatus: ['marital status'],
   bloodGroup: ['blood group'],
   quota: ['quota'],
+  depStatus: ['departmental', 'candidate status', 'dep status', 'ds'],
   ssc: ['ssc', 'secondary school certificate'],
   hsc: ['hsc', 'higher secondary certificate'],
   bachelor: ['bachelor', 'graduation', 'honours'],
   master: ['master', 'masters', 'post-graduation'],
-  postCodeArea: ['thana', 'upazila']
+  postCodeArea: ['thana', 'upazila'],
+  experienceComputer: ['word processing', 'email', 'fax machine', 'computer efficiency', 'experience in computer'],
+  experienceSatlipi: ['satlipi', 'typing speed', 'words per minute', 'wpm']
 };
 
 /**
@@ -239,7 +242,13 @@ function fillForm(profileData) {
   return filledCount;
 }
 
+// Handle ping to check if content script is ready
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message && message.type === 'PING') {
+    sendResponse({ ok: true });
+    return true;
+  }
+
   if (!message || message.type !== 'AUTOFILL_PAGE') {
     return false;
   }
