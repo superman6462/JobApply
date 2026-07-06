@@ -5,7 +5,7 @@ Purpose: Full-page UI for creating, editing, and deleting saved profiles
          (e.g. self, sister) used as autofill data sources, including
          Teletalk-specific fields.
 Author: Lead Engineer
-Version: 1.1.0
+Version: 1.2.0
 Dependencies: profiles.css, profiles.js
 Last Updated: 2026-07-06
 -->
@@ -50,7 +50,7 @@ Last Updated: 2026-07-06
 
           <button type="button" id="export-json-btn" class="button button--secondary import-panel__export" hidden>Download Selected as JSON</button>
 
-          <!-- NEW: Sample Profile section -->
+          <!-- Sample Profile section -->
           <hr style="border-top: 1px solid var(--color-border); margin: var(--spacing-md) 0;" />
           <p class="import-panel__title">Sample Profile</p>
           <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
@@ -208,7 +208,7 @@ Last Updated: 2026-07-06
           </fieldset>
 
           <fieldset class="profile-form__fieldset">
-            <legend>Quota</legend>
+            <legend>Quota & Department</legend>
 
             <label class="field">
               <span class="field__label">Quota</span>
@@ -221,8 +221,8 @@ Last Updated: 2026-07-06
             </label>
 
             <label class="field">
-              <span class="field__label">Freedom Fighter Dependent Status</span>
-              <input type="text" id="field-depStatus" name="depStatus" autocomplete="off" />
+              <span class="field__label">Departmental Candidate Status</span>
+              <input type="text" id="field-depStatus" name="depStatus" autocomplete="off" placeholder="e.g. Govt. Employee, Other" />
             </label>
           </fieldset>
 
@@ -425,6 +425,32 @@ Last Updated: 2026-07-06
             <label class="field">
               <span class="field__label">Master's (Subject, Institution, Year)</span>
               <input type="text" id="field-master" name="master" autocomplete="off" />
+            </label>
+          </fieldset>
+
+          <fieldset class="profile-form__fieldset">
+            <legend>Other Qualifications &amp; Experiences</legend>
+
+            <label class="field">
+              <span class="field__label">
+                Do you have efficiencies and experience in Word Processing, Email on Computer, operating Fax machine, etc.?
+              </span>
+              <select id="field-experienceComputer" name="experienceComputer">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field__label">
+                Do you have minimum computer typing speed of 20 words in English and 20 words in Bangla per minute?
+              </span>
+              <select id="field-experienceSatlipi" name="experienceSatlipi">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
             </label>
           </fieldset>
 
