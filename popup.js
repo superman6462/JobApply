@@ -81,11 +81,14 @@ async function loadProfiles() {
     profileSelect.appendChild(option);
   }
 
-  if (activeProfile) {
-    profileSelect.value = activeProfile.id;
-  } else {
-    profileSelect.value = profiles[0].id;
+  let selectedId = activeProfile ? activeProfile.id : null;
+  // If no active profile or it's not in the list, set to the first profile
+  if (!selectedId || !profiles.some(p => p.id === selectedId)) {
+    selectedId = profiles[0].id;
+    // Save as active profile so next time it's remembered
+    await sendMessage('SET_ACTIVE_PROFILE', selectedId);
   }
+  profileSelect.value = selectedId;
 }
 
 /**
