@@ -6,7 +6,7 @@
  *          teletalk-mapping.js for exact name/id matches on Teletalk-style
  *          hostnames before falling back to generic label-text matching.
  * Author: Lead Engineer
- * Version: 1.3.0
+ * Version: 1.4.0
  * Dependencies: teletalk-mapping.js
  * Last Updated: 2026-07-06
  */
@@ -136,6 +136,7 @@ function setSelectValue(element, value) {
       return true;
     }
   }
+  // Fallback: partial match on text
   for (const option of element.options) {
     if (normalize(option.textContent).includes(normalizedValue) && normalizedValue.length > 0) {
       element.value = option.value;
@@ -193,48 +194,61 @@ function handleSpecialFields(element, profileData) {
   const name = element.getAttribute('name');
   const id = element.getAttribute('id');
 
-  // Handle "Yes/No" selects for NID, Birth Registration, Passport
+  // NID select: set to "Yes" if nidNo exists, else "No"
   if (name === 'nid' || id === 'nid') {
     const hasNid = profileData.nidNo && profileData.nidNo.trim() !== '';
     const valueToSet = hasNid ? '1' : '0';
-    // Check if "Yes" option value is "1" or "Yes"
-    const yesOption = Array.from(element.options).find(opt => opt.value === '1' || normalize(opt.textContent) === 'yes');
-    if (yesOption) {
-      element.value = yesOption.value;
-      element.dispatchEvent(new Event('change', { bubbles: true }));
-      return true;
-    }
-  }
-  if (name === 'breg' || id === 'breg') {
-    const hasBreg = profileData.birthRegNo && profileData.birthRegNo.trim() !== '';
-    const valueToSet = hasBreg ? '1' : '0';
-    const yesOption = Array.from(element.options).find(opt => opt.value === '1' || normalize(opt.textContent) === 'yes');
-    if (yesOption) {
-      element.value = yesOption.value;
-      element.dispatchEvent(new Event('change', { bubbles: true }));
-      return true;
-    }
-  }
-  if (name === 'passport' || id === 'passport') {
-    const hasPassport = profileData.passportNo && profileData.passportNo.trim() !== '';
-    const valueToSet = hasPassport ? '1' : '0';
-    const yesOption = Array.from(element.options).find(opt => opt.value === '1' || normalize(opt.textContent) === 'yes');
-    if (yesOption) {
-      element.value = yesOption.value;
+    const option = Array.from(element.options).find(opt => opt.value === valueToSet);
+    if (option) {
+      element.value = option.value;
       element.dispatchEvent(new Event('change', { bubbles: true }));
       return true;
     }
   }
 
-  // Handle "If Applicable" checkboxes
+  // Birth Registration select: set to "No" if no birthRegNo (always "No" in sample)
+  if (name === 'breg' || id === 'breg') {
+    const hasBreg = profileData.birthRegNo && profileData.birthRegNo.trim() !== '';
+    const valueToSet = hasBreg ? '1' : '0';
+    const option = Array.from(element.options).find(opt => opt.value === valueToSet);
+    if (option) {
+      element.value = option.value;
+      element.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    }
+  }
+
+  // Passport select: set to "No" if no passportNo
+  if (name === 'passport' || id === 'passport') {
+    const hasPassport = profileData.passportNo && profileData.passportNo.trim() !== '';
+    const valueToSet = hasPassport ? '1' : '0';
+    const option = Array.from(element.options).find(opt => opt.value === valueToSet);
+    if (option) {
+      element.value = option.value;
+      element.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    }
+  }
+
+  // "Same as present address" checkbox
+  if (name === 'same_as_present' || id === 'same_as_present') {
+    if (profileData.sameAsPresent) {
+      element.checked = true;
+      element.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    }
+  }
+
+  // "If Applicable" checkbox for Graduation
   if (name === 'if_applicable_gra' || id === 'if_applicable_gra') {
     if (profileData.bachelor && profileData.bachelor.trim() !== '') {
       element.checked = true;
       element.dispatchEvent(new Event('change', { bubbles: true }));
-      // Also trigger change to enable the fields
       return true;
     }
   }
+
+  // "If Applicable" checkbox for Masters
   if (name === 'if_applicable_mas' || id === 'if_applicable_mas') {
     if (profileData.master && profileData.master.trim() !== '') {
       element.checked = true;
@@ -242,9 +256,12 @@ function handleSpecialFields(element, profileData) {
       return true;
     }
   }
-  if (name === 'if_applicable_exp' || id === 'if_applicable_exp') {
-    // We don't have job experience in profile, so leave unchecked
-    return false;
+
+  // "I declare" checkbox (agree)
+  if (name === 'agree' || id === 'agree') {
+    element.checked = true;
+    element.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
   }
 
   return false;
@@ -289,7 +306,7 @@ function fillForm(profileData) {
     }
 
     if (type === 'checkbox') {
-      // Skip checkboxes unless handled above
+      // Skip other checkboxes (handled above)
       continue;
     }
 
