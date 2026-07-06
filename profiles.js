@@ -4,7 +4,7 @@
  * Purpose: Loads, renders, creates, updates, and deletes profiles via the
  *          background message API, binding all profiles.html interactions.
  * Author: Lead Engineer
- * Version: 1.2.0
+ * Version: 1.3.0
  * Dependencies: background.js (message API)
  * Last Updated: 2026-07-06
  */
@@ -369,7 +369,8 @@ function handleSameAsPresentChange() {
 
 /**
  * Returns a sample profile object based on the data from the provided
- * "Save Document - Study Online Bd.html" file, now including all fields.
+ * "Save Document - Study Online Bd.html" file, now with values that match
+ * the BSDB Teletalk form options.
  * @returns {object}
  */
 function getSampleProfileData() {
@@ -396,9 +397,10 @@ function getSampleProfileData() {
     mobile: '01771522503',
     mobileConfirm: '01771522503',
     email: 'habiblinkage@gmail.com',
-    quota: 'Ansar-VDP',
+    // Changed to match BSDB options
+    quota: 'Not Applicable',
     quotaDetails: '',
-    depStatus: '',
+    depStatus: 'Not Applicable',
     presentCareOf: 'MD. ABDUS SOBAHAN',
     presentAddress: 'SHOHORDIGHI UTTAR PARA',
     presentDistrict: '10',
