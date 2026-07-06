@@ -28,6 +28,28 @@ Last Updated: 2026-07-06
       <aside class="profile-list" aria-label="Saved profiles">
         <ul id="profile-list" class="profile-list__items"></ul>
         <p id="profile-list-empty" class="profile-list__empty" hidden>No profiles yet. Create one to get started.</p>
+
+        <div class="import-panel" aria-label="Import profile data">
+          <p class="import-panel__title">Start from existing data</p>
+
+          <label class="field import-panel__field">
+            <span class="field__label">Copy from a saved profile</span>
+            <select id="copy-from-profile-select">
+              <option value="">Select a profile…</option>
+            </select>
+          </label>
+          <button type="button" id="copy-from-profile-btn" class="button button--secondary">Copy as New Profile</button>
+
+          <label class="field import-panel__field">
+            <span class="field__label">Or upload a profile JSON file</span>
+            <input type="file" id="import-json-input" accept="application/json,.json" />
+          </label>
+          <button type="button" id="import-json-btn" class="button button--secondary" disabled>Import JSON as New Profile</button>
+
+          <p id="import-status" class="form-status" role="status" aria-live="polite"></p>
+
+          <button type="button" id="export-json-btn" class="button button--secondary import-panel__export" hidden>Download Selected as JSON</button>
+        </div>
       </aside>
 
       <section class="profile-form-wrapper" aria-label="Profile editor">
