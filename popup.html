@@ -1,0 +1,52 @@
+<!--
+  Project: BD Job Autofill
+  Module: Popup UI
+  Purpose: Primary interface for selecting a profile, triggering autofill,
+           and navigating to profile/application management views.
+  Author: Lead Engineer
+  Version: 1.0.0
+  Dependencies: popup.css, popup.js
+  Last Updated: 2026-07-06
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BD Job Autofill</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <main class="popup" role="main">
+    <header class="popup__header">
+      <h1 class="popup__title">BD Job Autofill</h1>
+    </header>
+
+    <section class="popup__section" aria-labelledby="profile-heading">
+      <h2 id="profile-heading" class="popup__section-title">Profile</h2>
+      <label class="popup__label" for="profile-select">Active profile</label>
+      <select id="profile-select" class="popup__select" aria-describedby="profile-empty-hint"></select>
+      <p id="profile-empty-hint" class="popup__hint" hidden>No profiles saved yet.</p>
+    </section>
+
+    <section class="popup__section" aria-labelledby="action-heading">
+      <h2 id="action-heading" class="popup__section-title">Actions</h2>
+      <button id="autofill-btn" class="popup__button popup__button--primary" type="button">
+        Autofill this page
+      </button>
+      <p id="autofill-status" class="popup__status" role="status" aria-live="polite"></p>
+    </section>
+
+    <nav class="popup__nav" aria-label="Manage">
+      <button id="manage-profiles-btn" class="popup__button popup__button--secondary" type="button">
+        Manage Profiles
+      </button>
+      <button id="manage-applications-btn" class="popup__button popup__button--secondary" type="button">
+        Track Applications
+      </button>
+    </nav>
+  </main>
+
+  <script src="popup.js" type="module"></script>
+</body>
+</html>

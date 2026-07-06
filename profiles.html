@@ -1,0 +1,414 @@
+<!--
+Project: BD Job Autofill
+Module: Profiles Page
+Purpose: Full-page UI for creating, editing, and deleting saved profiles
+         (e.g. self, sister) used as autofill data sources, including
+         Teletalk-specific fields.
+Author: Lead Engineer
+Version: 1.1.0
+Dependencies: profiles.css, profiles.js
+Last Updated: 2026-07-06
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Profiles — BD Job Autofill</title>
+  <link rel="stylesheet" href="profiles.css" />
+</head>
+<body>
+  <main class="page" role="main">
+    <header class="page__header">
+      <h1 class="page__title">Manage Profiles</h1>
+      <button id="new-profile-btn" class="button button--primary" type="button">New Profile</button>
+    </header>
+
+    <section class="page__layout">
+      <aside class="profile-list" aria-label="Saved profiles">
+        <ul id="profile-list" class="profile-list__items"></ul>
+        <p id="profile-list-empty" class="profile-list__empty" hidden>No profiles yet. Create one to get started.</p>
+      </aside>
+
+      <section class="profile-form-wrapper" aria-label="Profile editor">
+        <form id="profile-form" class="profile-form" novalidate hidden>
+          <input type="hidden" id="profile-id" />
+
+          <fieldset class="profile-form__fieldset">
+            <legend>Basic Information</legend>
+
+            <label class="field">
+              <span class="field__label">Profile Label (e.g. "Me", "Sister")</span>
+              <input type="text" id="field-name" name="name" required autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Full Name (English)</span>
+              <input type="text" id="field-fullName" name="fullName" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Full Name (বাংলা)</span>
+              <input type="text" id="field-nameBn" name="nameBn" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Father's Name (English)</span>
+              <input type="text" id="field-fatherName" name="fatherName" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Father's Name (বাংলা)</span>
+              <input type="text" id="field-fatherBn" name="fatherBn" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Mother's Name (English)</span>
+              <input type="text" id="field-motherName" name="motherName" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Mother's Name (বাংলা)</span>
+              <input type="text" id="field-motherBn" name="motherBn" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Date of Birth</span>
+              <input type="date" id="field-dateOfBirth" name="dateOfBirth" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Gender</span>
+              <select id="field-gender" name="gender">
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field__label">Nationality</span>
+              <input type="text" id="field-nationality" name="nationality" autocomplete="off" value="Bangladeshi" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Religion</span>
+              <input type="text" id="field-religion" name="religion" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Marital Status</span>
+              <select id="field-maritalStatus" name="maritalStatus">
+                <option value="">Select</option>
+                <option value="Unmarried">Unmarried</option>
+                <option value="Married">Married</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field__label">Spouse Name (if married)</span>
+              <input type="text" id="field-spouseName" name="spouseName" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Blood Group</span>
+              <select id="field-bloodGroup" name="bloodGroup">
+                <option value="">Select</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <fieldset class="profile-form__fieldset">
+            <legend>Identification</legend>
+
+            <label class="field">
+              <span class="field__label">NID Type</span>
+              <select id="field-nidType" name="nidType">
+                <option value="">Select</option>
+                <option value="NID">NID</option>
+                <option value="Online NID Application Slip">Online NID Application Slip</option>
+                <option value="Not Available">Not Available</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field__label">NID Number</span>
+              <input type="text" id="field-nidNo" name="nidNo" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Birth Registration Number</span>
+              <input type="text" id="field-birthRegNo" name="birthRegNo" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Passport Number (optional)</span>
+              <input type="text" id="field-passportNo" name="passportNo" autocomplete="off" />
+            </label>
+          </fieldset>
+
+          <fieldset class="profile-form__fieldset">
+            <legend>Contact</legend>
+
+            <label class="field">
+              <span class="field__label">Mobile Number</span>
+              <input type="tel" id="field-mobile" name="mobile" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Confirm Mobile Number</span>
+              <input type="tel" id="field-mobileConfirm" name="mobileConfirm" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Email</span>
+              <input type="email" id="field-email" name="email" autocomplete="off" />
+            </label>
+          </fieldset>
+
+          <fieldset class="profile-form__fieldset">
+            <legend>Quota</legend>
+
+            <label class="field">
+              <span class="field__label">Quota</span>
+              <input type="text" id="field-quota" name="quota" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Quota Details</span>
+              <input type="text" id="field-quotaDetails" name="quotaDetails" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Freedom Fighter Dependent Status</span>
+              <input type="text" id="field-depStatus" name="depStatus" autocomplete="off" />
+            </label>
+          </fieldset>
+
+          <fieldset class="profile-form__fieldset">
+            <legend>Present Address</legend>
+
+            <label class="field">
+              <span class="field__label">Care Of</span>
+              <input type="text" id="field-presentCareOf" name="presentCareOf" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Village / Road / House</span>
+              <textarea id="field-presentAddress" name="presentAddress" rows="2"></textarea>
+            </label>
+
+            <label class="field">
+              <span class="field__label">District</span>
+              <input type="text" id="field-presentDistrict" name="presentDistrict" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Upazila</span>
+              <input type="text" id="field-presentUpazila" name="presentUpazila" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Post Office</span>
+              <input type="text" id="field-presentPost" name="presentPost" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Post Code</span>
+              <input type="text" id="field-presentPostcode" name="presentPostcode" autocomplete="off" />
+            </label>
+          </fieldset>
+
+          <fieldset class="profile-form__fieldset">
+            <legend>Permanent Address</legend>
+
+            <label class="field field--checkbox">
+              <input type="checkbox" id="field-sameAsPresent" name="sameAsPresent" />
+              <span class="field__label">Same as present address</span>
+            </label>
+
+            <label class="field">
+              <span class="field__label">Care Of</span>
+              <input type="text" id="field-permanentCareOf" name="permanentCareOf" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Village / Road / House</span>
+              <textarea id="field-permanentAddress" name="permanentAddress" rows="2"></textarea>
+            </label>
+
+            <label class="field">
+              <span class="field__label">District</span>
+              <input type="text" id="field-permanentDistrict" name="permanentDistrict" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Upazila</span>
+              <input type="text" id="field-permanentUpazila" name="permanentUpazila" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Post Office</span>
+              <input type="text" id="field-permanentPost" name="permanentPost" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Post Code</span>
+              <input type="text" id="field-permanentPostcode" name="permanentPostcode" autocomplete="off" />
+            </label>
+          </fieldset>
+
+          <fieldset class="profile-form__fieldset">
+            <legend>Father's Occupation</legend>
+
+            <label class="field">
+              <span class="field__label">Occupation</span>
+              <input type="text" id="field-fatherOccupation" name="fatherOccupation" autocomplete="off" />
+            </label>
+          </fieldset>
+
+          <fieldset class="profile-form__fieldset">
+            <legend>SSC / Equivalent</legend>
+
+            <label class="field">
+              <span class="field__label">Exam</span>
+              <input type="text" id="field-sscExam" name="sscExam" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Roll Number</span>
+              <input type="text" id="field-sscRoll" name="sscRoll" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Group</span>
+              <input type="text" id="field-sscGroup" name="sscGroup" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Group (Other, if applicable)</span>
+              <input type="text" id="field-sscGroupOther" name="sscGroupOther" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Board</span>
+              <input type="text" id="field-sscBoard" name="sscBoard" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Board (Other, if applicable)</span>
+              <input type="text" id="field-sscBoardOther" name="sscBoardOther" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Result Type</span>
+              <select id="field-sscResultType" name="sscResultType">
+                <option value="">Select</option>
+                <option value="GPA">GPA</option>
+                <option value="Division">Division</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field__label">Result (GPA)</span>
+              <input type="text" id="field-sscResult" name="sscResult" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Passing Year</span>
+              <input type="text" id="field-sscYear" name="sscYear" autocomplete="off" />
+            </label>
+          </fieldset>
+
+          <fieldset class="profile-form__fieldset">
+            <legend>HSC / Equivalent</legend>
+
+            <label class="field">
+              <span class="field__label">Exam</span>
+              <input type="text" id="field-hscExam" name="hscExam" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Roll Number</span>
+              <input type="text" id="field-hscRoll" name="hscRoll" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Group</span>
+              <input type="text" id="field-hscGroup" name="hscGroup" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Group (Other, if applicable)</span>
+              <input type="text" id="field-hscGroupOther" name="hscGroupOther" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Board</span>
+              <input type="text" id="field-hscBoard" name="hscBoard" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Board (Other, if applicable)</span>
+              <input type="text" id="field-hscBoardOther" name="hscBoardOther" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Result Type</span>
+              <select id="field-hscResultType" name="hscResultType">
+                <option value="">Select</option>
+                <option value="GPA">GPA</option>
+                <option value="Division">Division</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field__label">Result (GPA)</span>
+              <input type="text" id="field-hscResult" name="hscResult" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Passing Year</span>
+              <input type="text" id="field-hscYear" name="hscYear" autocomplete="off" />
+            </label>
+          </fieldset>
+
+          <fieldset class="profile-form__fieldset">
+            <legend>Bachelor's / Master's (Summary)</legend>
+
+            <label class="field">
+              <span class="field__label">Bachelor's (Subject, Institution, Year)</span>
+              <input type="text" id="field-bachelor" name="bachelor" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Master's (Subject, Institution, Year)</span>
+              <input type="text" id="field-master" name="master" autocomplete="off" />
+            </label>
+          </fieldset>
+
+          <div class="profile-form__actions">
+            <button type="submit" class="button button--primary">Save Profile</button>
+            <button type="button" id="delete-profile-btn" class="button button--danger">Delete Profile</button>
+          </div>
+
+          <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <p id="form-empty-hint" class="form-empty-hint">Select a profile or create a new one to begin editing.</p>
+      </section>
+    </section>
+  </main>
+
+  <script src="profiles.js" type="module"></script>
+</body>
+</html>
