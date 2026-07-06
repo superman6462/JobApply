@@ -5,7 +5,7 @@ Purpose: Full-page UI for creating, editing, and deleting saved profiles
          (e.g. self, sister) used as autofill data sources, including
          Teletalk-specific fields.
 Author: Lead Engineer
-Version: 1.2.0
+Version: 1.4.0
 Dependencies: profiles.css, profiles.js
 Last Updated: 2026-07-06
 -->
@@ -415,16 +415,80 @@ Last Updated: 2026-07-06
           </fieldset>
 
           <fieldset class="profile-form__fieldset">
-            <legend>Bachelor's / Master's (Summary)</legend>
+            <legend>Graduation / Equivalent Level</legend>
 
             <label class="field">
-              <span class="field__label">Bachelor's (Subject, Institution, Year)</span>
-              <input type="text" id="field-bachelor" name="bachelor" autocomplete="off" />
+              <span class="field__label">Examination</span>
+              <input type="text" id="field-graExam" name="graExam" autocomplete="off" />
             </label>
 
             <label class="field">
-              <span class="field__label">Master's (Subject, Institution, Year)</span>
-              <input type="text" id="field-master" name="master" autocomplete="off" />
+              <span class="field__label">University / Institution</span>
+              <input type="text" id="field-graInstitute" name="graInstitute" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Subject / Degree</span>
+              <input type="text" id="field-graSubject" name="graSubject" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Result Type</span>
+              <input type="text" id="field-graResultType" name="graResultType" autocomplete="off" placeholder="e.g., CGPA(out of 4)" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Result (GPA/CGPA)</span>
+              <input type="text" id="field-graResult" name="graResult" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Passing Year</span>
+              <input type="text" id="field-graYear" name="graYear" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Course Duration</span>
+              <input type="text" id="field-graDuration" name="graDuration" autocomplete="off" placeholder="e.g., 04" />
+            </label>
+          </fieldset>
+
+          <fieldset class="profile-form__fieldset">
+            <legend>Masters / Equivalent Level</legend>
+
+            <label class="field">
+              <span class="field__label">Examination</span>
+              <input type="text" id="field-masExam" name="masExam" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">University / Institution</span>
+              <input type="text" id="field-masInstitute" name="masInstitute" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Subject / Degree</span>
+              <input type="text" id="field-masSubject" name="masSubject" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Result Type</span>
+              <input type="text" id="field-masResultType" name="masResultType" autocomplete="off" placeholder="e.g., CGPA(out of 4)" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Result (GPA/CGPA)</span>
+              <input type="text" id="field-masResult" name="masResult" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Passing Year</span>
+              <input type="text" id="field-masYear" name="masYear" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Course Duration</span>
+              <input type="text" id="field-masDuration" name="masDuration" autocomplete="off" placeholder="e.g., 01" />
             </label>
           </fieldset>
 
