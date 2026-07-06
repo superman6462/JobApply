@@ -6,7 +6,7 @@
  *          teletalk-mapping.js for exact name/id matches on Teletalk-style
  *          hostnames before falling back to generic label-text matching.
  * Author: Lead Engineer
- * Version: 1.4.0
+ * Version: 1.5.0
  * Dependencies: teletalk-mapping.js
  * Last Updated: 2026-07-06
  */
@@ -50,12 +50,17 @@ const FIELD_PATTERNS = {
 };
 
 /**
- * Normalizes a string for pattern matching: lowercase, trimmed, collapsed spaces.
+ * Normalizes a string for pattern matching: lowercase, trimmed, collapsed spaces,
+ * and removes punctuation like dots, dashes, etc. for fuzzy matching.
  * @param {string} value
  * @returns {string}
  */
 function normalize(value) {
-  return (value || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  return (value || '')
+    .toLowerCase()
+    .replace(/[\s\.\-_,()']/g, ' ') // replace punctuation with space
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**
@@ -123,22 +128,24 @@ function setTextValue(element, value) {
 
 /**
  * Selects a matching <option> in a <select> element by visible text or value.
+ * Uses fuzzy matching: removes dots, spaces, etc., and compares.
  * @param {HTMLSelectElement} element
  * @param {string} value
  * @returns {boolean} whether a match was applied
  */
 function setSelectValue(element, value) {
-  const normalizedValue = normalize(value);
+  const target = normalize(value);
   for (const option of element.options) {
-    if (normalize(option.textContent) === normalizedValue || normalize(option.value) === normalizedValue) {
+    if (target === normalize(option.textContent) || target === normalize(option.value)) {
       element.value = option.value;
       element.dispatchEvent(new Event('change', { bubbles: true }));
       return true;
     }
   }
-  // Fallback: partial match on text
+  // Fallback: contains match
   for (const option of element.options) {
-    if (normalize(option.textContent).includes(normalizedValue) && normalizedValue.length > 0) {
+    const optText = normalize(option.textContent);
+    if (optText.includes(target) && target.length > 0) {
       element.value = option.value;
       element.dispatchEvent(new Event('change', { bubbles: true }));
       return true;
@@ -154,11 +161,11 @@ function setSelectValue(element, value) {
  * @returns {boolean} whether a match was applied
  */
 function setRadioValue(name, value) {
-  const normalizedValue = normalize(value);
+  const target = normalize(value);
   const radios = document.querySelectorAll(`input[type="radio"][name="${CSS.escape(name)}"]`);
   for (const radio of radios) {
     const description = describeElement(radio);
-    if (description.includes(normalizedValue) || normalize(radio.value) === normalizedValue) {
+    if (description.includes(target) || normalize(radio.value) === target) {
       radio.checked = true;
       radio.dispatchEvent(new Event('change', { bubbles: true }));
       return true;
@@ -328,6 +335,7 @@ function fillForm(profileData) {
     }
 
     if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+      // For text inputs, we set the value
       setTextValue(element, profileValue);
       filledCount += 1;
     }
