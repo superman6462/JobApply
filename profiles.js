@@ -366,6 +366,75 @@ function handleSameAsPresentChange() {
 }
 
 /**
+ * Returns a sample profile object based on the data from the provided
+ * "Save Document - Study Online Bd.html" file.
+ * @returns {object}
+ */
+function getSampleProfileData() {
+  return {
+    id: '',
+    name: 'Habib',
+    fullName: 'MD. HABIBUR RAHMAN',
+    nameBn: 'মোঃ হাবিবুর রহমান',
+    fatherName: 'MD. ABDUS SOBAHAN',
+    fatherBn: 'মোঃ আব্দুস সোবহান',
+    motherName: 'MST. HAMIDA BEGUM',
+    motherBn: 'মোছাঃ হামিদা বেগম',
+    dateOfBirth: '1994-12-20',
+    gender: 'Male',
+    nationality: 'Bangladeshi',
+    religion: 'Islam',
+    maritalStatus: 'Married',
+    spouseName: 'MST. SADIYA AKHTER',
+    bloodGroup: '',
+    nidType: 'NID',
+    nidNo: '3254367778',
+    birthRegNo: '',
+    passportNo: '',
+    mobile: '01771522503',
+    mobileConfirm: '01771522503',
+    email: 'habiblinkage@gmail.com',
+    quota: 'Ansar-VDP',
+    quotaDetails: '',
+    depStatus: '',
+    presentCareOf: 'MD. ABDUS SOBAHAN',
+    presentAddress: 'SHOHORDIGHI UTTAR PARA',
+    presentDistrict: '10',
+    presentUpazila: '43',
+    presentPost: 'FAPORE',
+    presentPostcode: '5800',
+    permanentCareOf: 'MD. ABDUS SOBAHAN',
+    permanentAddress: 'SHOHORDIGHI UTTAR PARA',
+    permanentDistrict: '10',
+    permanentUpazila: '43',
+    permanentPost: 'FAPORE',
+    permanentPostcode: '5800',
+    sameAsPresent: true,
+    fatherOccupation: '',
+    sscExam: 'SSC',
+    sscRoll: '124300',
+    sscGroup: 'Science',
+    sscGroupOther: '',
+    sscBoard: 'Rajshahi',
+    sscBoardOther: '',
+    sscResultType: 'GPA',
+    sscResult: '4.38',
+    sscYear: '2010',
+    hscExam: 'HSC',
+    hscRoll: '130381',
+    hscGroup: 'Science',
+    hscGroupOther: '',
+    hscBoard: 'Rajshahi',
+    hscBoardOther: '',
+    hscResultType: 'GPA',
+    hscResult: '4.50',
+    hscYear: '2012',
+    bachelor: 'B.Sc (Honors) in Zoology, National University, 2016, CGPA 3.43',
+    master: 'M.Sc in Zoology, National University, 2017, CGPA 3.61'
+  };
+}
+
+/**
  * Loads all profiles from storage on page initialization.
  * @returns {Promise<void>}
  */
@@ -378,9 +447,50 @@ async function initialize() {
   }
 }
 
+// --- Event Listeners ---
+
 newProfileBtn.addEventListener('click', startNewProfile);
 profileFormEl.addEventListener('submit', handleFormSubmit);
 deleteProfileBtn.addEventListener('click', handleDeleteClick);
 document.getElementById('field-sameAsPresent').addEventListener('change', handleSameAsPresentChange);
+
+// --- Sample Profile event listeners ---
+
+const loadSampleBtn = document.getElementById('load-sample-btn');
+const showSampleJsonBtn = document.getElementById('show-sample-json-btn');
+const sampleJsonDisplay = document.getElementById('sample-json-display');
+
+if (loadSampleBtn) {
+  loadSampleBtn.addEventListener('click', () => {
+    const sample = getSampleProfileData();
+    selectedProfileId = null;
+    formEmptyHintEl.hidden = true;
+    profileFormEl.hidden = false;
+    deleteProfileBtn.hidden = true;
+    setFormStatus('Sample profile loaded. You can edit and save.', 'success');
+    populateForm(sample);
+    renderProfileList();
+    // Ensure sameAsPresent checkbox is handled correctly
+    const sameCheckbox = document.getElementById('field-sameAsPresent');
+    if (sameCheckbox) {
+      sameCheckbox.checked = true;
+      sameCheckbox.dispatchEvent(new Event('change'));
+    }
+  });
+}
+
+if (showSampleJsonBtn) {
+  showSampleJsonBtn.addEventListener('click', () => {
+    if (sampleJsonDisplay.style.display === 'none') {
+      const sample = getSampleProfileData();
+      sampleJsonDisplay.textContent = JSON.stringify(sample, null, 2);
+      sampleJsonDisplay.style.display = 'block';
+      showSampleJsonBtn.textContent = 'Hide Sample JSON';
+    } else {
+      sampleJsonDisplay.style.display = 'none';
+      showSampleJsonBtn.textContent = 'Show Sample JSON';
+    }
+  });
+}
 
 initialize();
