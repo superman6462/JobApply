@@ -4,7 +4,7 @@
  * Purpose: Populates profile selector, wires autofill trigger, and routes
  *          navigation to profile/application management views.
  * Author: Lead Engineer
- * Version: 1.2.0
+ * Version: 1.3.0
  * Dependencies: background.js (message API), content-script.js (AUTOFILL_PAGE)
  * Last Updated: 2026-07-06
  */
@@ -110,18 +110,64 @@ function getActiveTab() {
 }
 
 /**
+ * Waits for a tab to finish loading.
+ * @param {number} tabId
+ * @returns {Promise<void>}
+ */
+function waitForTabLoad(tabId) {
+  return new Promise((resolve) => {
+    chrome.tabs.get(tabId, (tab) => {
+      if (tab.status === 'complete') {
+        resolve();
+      } else {
+        const listener = (updatedTabId, changeInfo) => {
+          if (updatedTabId === tabId && changeInfo.status === 'complete') {
+            chrome.tabs.onUpdated.removeListener(listener);
+            resolve();
+          }
+        };
+        chrome.tabs.onUpdated.addListener(listener);
+      }
+    });
+  });
+}
+
+/**
  * Ensures the content script is injected into the active tab.
+ * Retries up to 3 times with a delay.
  * @param {number} tabId
  * @returns {Promise<void>}
  */
 async function ensureContentScript(tabId) {
-  try {
-    await chrome.tabs.sendMessage(tabId, { type: 'PING' });
-  } catch (e) {
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ['teletalk-mapping.js', 'content-script.js']
-    });
+  let attempts = 0;
+  const maxAttempts = 3;
+
+  while (attempts < maxAttempts) {
+    try {
+      // Try to ping the content script
+      await chrome.tabs.sendMessage(tabId, { type: 'PING' });
+      return; // success
+    } catch (e) {
+      attempts++;
+      if (attempts >= maxAttempts) {
+        // Last attempt – inject the script
+        try {
+          await chrome.scripting.executeScript({
+            target: { tabId },
+            files: ['teletalk-mapping.js', 'content-script.js']
+          });
+          // Wait a moment for the script to initialize
+          await new Promise(resolve => setTimeout(resolve, 300));
+          // Verify injection by pinging again
+          await chrome.tabs.sendMessage(tabId, { type: 'PING' });
+          return;
+        } catch (injectErr) {
+          throw new Error('Failed to inject content script. Please refresh the page and try again.');
+        }
+      }
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
   }
 }
 
@@ -154,8 +200,14 @@ async function handleAutofillClick() {
     }
 
     const tab = await getActiveTab();
+
+    // Wait for tab to be fully loaded
+    await waitForTabLoad(tab.id);
+
+    // Ensure content script is loaded
     await ensureContentScript(tab.id);
 
+    // Send autofill command
     const response = await chrome.tabs.sendMessage(tab.id, {
       type: 'AUTOFILL_PAGE',
       payload: activeProfile
@@ -168,7 +220,7 @@ async function handleAutofillClick() {
 
     setStatus(`Filled ${response.data.filledCount} field(s).`, 'success');
   } catch (error) {
-    setStatus(error.message || 'Could not connect to page. Reload the page and try again.', 'error');
+    setStatus(error.message || 'Could not connect to page. Please refresh the page and try again.', 'error');
   } finally {
     autofillBtn.disabled = false;
   }
