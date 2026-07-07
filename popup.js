@@ -4,9 +4,9 @@
  * Purpose: Populates profile selector, wires autofill trigger, and routes
  *          navigation to profile/application management views.
  * Author: Lead Engineer
- * Version: 1.3.0
+ * Version: 1.4.0
  * Dependencies: background.js (message API), content-script.js (AUTOFILL_PAGE)
- * Last Updated: 2026-07-06
+ * Last Updated: 2026-07-07
  */
 
 const profileSelect = document.getElementById('profile-select');
@@ -15,6 +15,15 @@ const autofillBtn = document.getElementById('autofill-btn');
 const autofillStatus = document.getElementById('autofill-status');
 const manageProfilesBtn = document.getElementById('manage-profiles-btn');
 const manageApplicationsBtn = document.getElementById('manage-applications-btn');
+
+const RESTRICTED_URL_PREFIXES = [
+  'chrome://',
+  'chrome-extension://',
+  'edge://',
+  'about:',
+  'https://chrome.google.com/webstore',
+  'https://chromewebstore.google.com'
+];
 
 /**
  * Sends a message to the background service worker.
@@ -106,6 +115,216 @@ function getActiveTab() {
       }
       resolve(tabs[0]);
     });
+  });
+}
+
+/**
+ * Waits for a tab to finish loading.
+ * @param {number} tabId
+ * @returns {Promise<void>}
+ */
+function waitForTabLoad(tabId) {
+  return new Promise((resolve) => {
+    chrome.tabs.get(tabId, (tab) => {
+      if (!tab || tab.status === 'complete') {
+        resolve();
+        return;
+      }
+      const listener = (updatedTabId, changeInfo) => {
+        if (updatedTabId === tabId && changeInfo.status === 'complete') {
+          chrome.tabs.onUpdated.removeListener(listener);
+          resolve();
+        }
+      };
+      chrome.tabs.onUpdated.addListener(listener);
+    });
+  });
+}
+
+/**
+ * Determines whether a URL is a restricted page where scripting injection
+ * is disallowed by the browser (internal pages, web store, etc.).
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isRestrictedUrl(url) {
+  if (!url) {
+    return true;
+  }
+  return RESTRICTED_URL_PREFIXES.some((prefix) => url.startsWith(prefix));
+}
+
+/**
+ * Sends a PING message to the content script and resolves true/false based
+ * on whether a live listener responded, instead of throwing.
+ * @param {number} tabId
+ * @returns {Promise<boolean>}
+ */
+function pingContentScript(tabId) {
+  return new Promise((resolve) => {
+    chrome.tabs.sendMessage(tabId, { type: 'PING' }, () => {
+      resolve(!chrome.runtime.lastError);
+    });
+  });
+}
+
+/**
+ * Injects the content script files into the given tab.
+ * @param {number} tabId
+ * @returns {Promise<void>}
+ */
+function injectContentScript(tabId) {
+  return new Promise((resolve, reject) => {
+    chrome.scripting.executeScript(
+      {
+        target: { tabId },
+        files: ['teletalk-mapping.js', 'content-script.js']
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        resolve();
+      }
+    );
+  });
+}
+
+/**
+ * Ensures the content script is loaded and responsive in the active tab.
+ * Pings first; if unresponsive, injects immediately and pings again with
+ * a short backoff to allow initialization.
+ * @param {number} tabId
+ * @param {string} tabUrl
+ * @returns {Promise<void>}
+ */
+async function ensureContentScript(tabId, tabUrl) {
+  if (isRestrictedUrl(tabUrl)) {
+    throw new Error('This page cannot be autofilled (browser-restricted page).');
+  }
+
+  const alreadyLive = await pingContentScript(tabId);
+  if (alreadyLive) {
+    return;
+  }
+
+  try {
+    await injectContentScript(tabId);
+  } catch (injectErr) {
+    throw new Error(
+      `Failed to inject content script: ${injectErr.message}. Please refresh the page and try again.`
+    );
+  }
+
+  const maxAttempts = 4;
+  const delayMs = 250;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    const live = await pingContentScript(tabId);
+    if (live) {
+      return;
+    }
+  }
+
+  throw new Error('Failed to inject content script. Please refresh the page and try again.');
+}
+
+/**
+ * Handles profile selection change: persists as active profile.
+ * @returns {Promise<void>}
+ */
+async function handleProfileChange() {
+  const profileId = profileSelect.value;
+  try {
+    await sendMessage('SET_ACTIVE_PROFILE', profileId);
+  } catch (error) {
+    setStatus(error.message, 'error');
+  }
+}
+
+/**
+ * Sends the AUTOFILL_PAGE command and returns a normalized response.
+ * @param {number} tabId
+ * @param {object} activeProfile
+ * @returns {Promise<{ok: boolean, data?: object, error?: string}>}
+ */
+function sendAutofillCommand(tabId, activeProfile) {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.sendMessage(
+      tabId,
+      { type: 'AUTOFILL_PAGE', payload: activeProfile },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        resolve(response);
+      }
+    );
+  });
+}
+
+/**
+ * Handles autofill button click: sends fill command to content script.
+ * @returns {Promise<void>}
+ */
+async function handleAutofillClick() {
+  autofillBtn.disabled = true;
+  setStatus('Filling form…', '');
+
+  try {
+    const activeProfile = await sendMessage('GET_ACTIVE_PROFILE');
+    if (!activeProfile) {
+      setStatus('No active profile selected.', 'error');
+      return;
+    }
+
+    const tab = await getActiveTab();
+
+    await waitForTabLoad(tab.id);
+
+    await ensureContentScript(tab.id, tab.url);
+
+    const response = await sendAutofillCommand(tab.id, activeProfile);
+
+    if (!response || !response.ok) {
+      setStatus((response && response.error) || 'Autofill failed.', 'error');
+      return;
+    }
+
+    setStatus(`Filled ${response.data.filledCount} field(s).`, 'success');
+  } catch (error) {
+    setStatus(error.message || 'Could not connect to page. Please refresh the page and try again.', 'error');
+  } finally {
+    autofillBtn.disabled = false;
+  }
+}
+
+/**
+ * Opens the profile management page in a new tab.
+ * @returns {void}
+ */
+function openProfilesPage() {
+  chrome.tabs.create({ url: chrome.runtime.getURL('profiles.html') });
+}
+
+/**
+ * Opens the applications history page in a new tab.
+ * @returns {void}
+ */
+function openApplicationsPage() {
+  chrome.tabs.create({ url: chrome.runtime.getURL('applications.html') });
+}
+
+profileSelect.addEventListener('change', handleProfileChange);
+autofillBtn.addEventListener('click', handleAutofillClick);
+manageProfilesBtn.addEventListener('click', openProfilesPage);
+manageApplicationsBtn.addEventListener('click', openApplicationsPage);
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadProfiles().catch((error) => setStatus(error.message, 'error'));
+});
   });
 }
 
