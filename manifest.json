@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "BD Job Autofill",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Autofill Bangladeshi job application forms (Teletalk-style) from saved profiles.",
   "icons": {
     "16": "icons/icon16.png",
@@ -11,7 +11,8 @@
   "permissions": [
     "storage",
     "activeTab",
-    "scripting"
+    "scripting",
+    "tabs"
   ],
   "host_permissions": [
     "https://*/*"
